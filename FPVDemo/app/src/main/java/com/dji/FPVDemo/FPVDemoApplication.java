@@ -21,7 +21,7 @@ import dji.sdk.sdkmanager.DJISDKManager;
 
 public class FPVDemoApplication extends Application{
 
-    public static final String FLAG_CONNECTION_CHANGE = "fpv_tutorial_connection_change";
+    public static final String FLAG_CONNECTION_CHANGE = "fpv_connection_change";
 
     private DJISDKManager.SDKManagerCallback mDJISDKManagerCallback;
     private BaseProduct.BaseProductListener mDJIBaseProductListener;

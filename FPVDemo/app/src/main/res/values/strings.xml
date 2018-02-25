@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">FPV Drone</string>
+    <string name="app_name">DroneView app</string>
     <string name="action_settings">Settings</string>   
     <string name="disconnected">Disconnected</string>
     <string name="product_information">Product Information</string>

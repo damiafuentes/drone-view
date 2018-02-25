@@ -18,13 +18,13 @@
         android:weightSum="2">
 
         <ImageView
-        android:id="@+id/ivLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_centerHorizontal="true"
-        android:layout_weight="1"
-        android:scaleType="centerCrop"/>
+            android:id="@+id/ivLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"
+            android:scaleType="centerCrop"/>
 
         <ImageView
             android:id="@+id/ivRigth"
@@ -37,13 +37,13 @@
     </LinearLayout>
 
     <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:padding="15dp"
-    android:text="STOP"
-    android:id="@+id/tvStop"
-    android:background="@color/colorBlack"
-    android:textColor="@color/colorWhite"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:text="STOP"
+        android:id="@+id/tvStop"
+        android:background="@color/colorWhiteTranslucent"
+        android:textColor="@color/colorBlack"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -51,8 +51,8 @@
         android:padding="15dp"
         android:text="START"
         android:id="@+id/tvStart"
-        android:background="@color/colorBlack"
-        android:textColor="@color/colorWhite"
+        android:background="@color/colorWhiteTranslucent"
+        android:textColor="@color/colorBlack"
         android:layout_alignParentEnd="true"/>
 
     <TextView
@@ -61,8 +61,8 @@
         android:padding="15dp"
         android:text="DEBUG"
         android:id="@+id/tvDebug"
-        android:background="@color/colorBlack"
-        android:textColor="@color/colorWhite"
+        android:background="@color/colorWhiteTranslucent"
+        android:textColor="@color/colorBlack"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"/>
 

@@ -49,8 +49,6 @@ import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 import dji.sdk.useraccount.UserAccountManager;
 
-import static android.speech.SpeechRecognizer.RESULTS_RECOGNITION;
-
 public class MainActivity extends Activity implements SensorEventListener {
 
     private static final String TAG = MainActivity.class.getName();
@@ -184,6 +182,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         tvStop = (TextView) findViewById(R.id.tvStop);
         tvStart = (TextView) findViewById(R.id.tvStart);
         tvDebug = (TextView) findViewById(R.id.tvDebug);
+        tvDebug.setVisibility(View.GONE);
 
         if (null != mVideoSurface) {
             mVideoSurface.setSurfaceTextureListener(surfaceTextureListener);
@@ -212,7 +211,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                         ? "Success"
                         : djiError.getDescription()));
                 canSendData = true;
-//                mFlightController.cancelTakeoff(null);
                 MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
                 missionControl.stopTimeline();
 
@@ -578,7 +576,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             FlightControlData fcd = new FlightControlData(
                     -pitch,
-                    0,//roll,
+                    0,//roll, No roll added for a easier navigation
                     yaw,
                     throttle);
 
@@ -612,9 +610,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             public void onDroidSpeechRmsChanged(float rmsChangedValue) {}
 
             @Override
-            public void onDroidSpeechLiveResult(String liveSpeechResult) {
-
-            }
+            public void onDroidSpeechLiveResult(String liveSpeechResult) {}
 
             @Override
             public void onDroidSpeechFinalResult(String finalSpeechResult) {
