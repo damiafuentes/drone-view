@@ -31,14 +31,19 @@ import dji.common.flightcontroller.virtualstick.FlightControlData;
 import dji.common.flightcontroller.virtualstick.FlightCoordinateSystem;
 import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.YawControlMode;
+import dji.common.gimbal.CapabilityKey;
+import dji.common.gimbal.Rotation;
+import dji.common.gimbal.RotationMode;
 import dji.common.product.Model;
 import dji.common.useraccount.UserAccountState;
 import dji.common.util.CommonCallbacks;
+import dji.common.util.DJIParamMinMaxCapability;
 import dji.sdk.base.BaseProduct;
 import dji.sdk.camera.Camera;
 import dji.sdk.camera.VideoFeeder;
 import dji.sdk.codec.DJICodecManager;
 import dji.sdk.flightcontroller.FlightController;
+import dji.sdk.gimbal.Gimbal;
 import dji.sdk.mission.MissionControl;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
@@ -71,8 +76,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     private float pitch = 0.0f;
     private float roll = 0.0f;
-    private float yaw = 180.0f;
-    private float throttle = 0.0f;
+    private float yaw = 0.0f;
+    private float throttle = 1.6f;
 
     private boolean canSendData = false;
 
@@ -408,6 +413,14 @@ public class MainActivity extends Activity implements SensorEventListener {
             mFlightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
             mFlightController.setYawControlMode(YawControlMode.ANGLE);
             mFlightController.setRollPitchControlMode(RollPitchControlMode.ANGLE);
+
+            Gimbal gimbal = DJISDKManager.getInstance().getProduct().getGimbal();
+            Number value = ((DJIParamMinMaxCapability) (gimbal.getCapabilities().get(CapabilityKey.ADJUST_PITCH))).getMin();
+            Rotation.Builder builder = new Rotation.Builder().mode(RotationMode.ABSOLUTE_ANGLE).time(2);
+            value = value.doubleValue()*0.1;
+            builder.pitch(value.floatValue());
+            gimbal.rotate(builder.build(),null);
+
             mFlightController.setTerrainFollowModeEnabled(false, new CommonCallbacks.CompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
@@ -450,6 +463,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private float[] mMagnetometerReading = new float[3];
     private float[] mRotationMatrix = new float[9];
     private float[] mOrientationAngles = new float[3];
+    private float calibrationAngle = 1000.0f;
 
     private void initGyroscopoe(){
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -468,11 +482,14 @@ public class MainActivity extends Activity implements SensorEventListener {
                 mAccelerometerReading, mMagnetometerReading);
 
         // Express the updated rotation matrix as three orientation angles.
-        final float[] orientationAngles = new float[3];
-        SensorManager.getOrientation(mRotationMatrix, orientationAngles);
+        mOrientationAngles = new float[3];
+        SensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
+
+        convertToDegrees(mOrientationAngles);
     }
 
-    private float startHeading = 1000.0f;
+    private float lastPhoneYaw = 0.0f;
+    private float augmentYaw = 0.0f;
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -492,15 +509,28 @@ public class MainActivity extends Activity implements SensorEventListener {
         SensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
 
         convertToDegrees(mOrientationAngles);
+        if(mOrientationAngles[0] != 0.0f) {
 
-        yaw = mOrientationAngles[0];
-        roll = (float) (mOrientationAngles[1]*0.5);
-        pitch = (float) ((mOrientationAngles[2] + 90)*0.5);
+            if (calibrationAngle == 1000.0f) {
+                calibrationAngle = mFlightController.getCompass().getHeading() - mOrientationAngles[0];
+                yaw = calibrationAngle;
+            }
 
-        if(pitch>30) pitch = 30;
-        if(pitch<-30) pitch = -30;
-        if(roll>30) roll = 30;
-        if(roll<-30) roll = -30;
+            augmentYaw = mOrientationAngles[0] - lastPhoneYaw;
+            lastPhoneYaw = mOrientationAngles[0];
+            yaw = yaw + augmentYaw;
+
+            if (yaw > 180) yaw = -360 + yaw;
+            if (yaw < -180) yaw = 360 + yaw;
+
+            roll = (float) (mOrientationAngles[1] * 0.5);
+            pitch = (float) ((mOrientationAngles[2] + 90) * 0.05);
+
+            if (pitch > 30) pitch = 30;
+            if (pitch < -30) pitch = -30;
+            if (roll > 30) roll = 30;
+            if (roll < -30) roll = -30;
+        }
 
         MainActivity.this.runOnUiThread(new Runnable() {
             public void run() {
@@ -543,12 +573,12 @@ public class MainActivity extends Activity implements SensorEventListener {
         missionControl.stopTimeline();
         Log.d(TAG, "available: " + mFlightController.isVirtualStickControlModeAvailable());
         Log.d(TAG, "advanced enabled: " + mFlightController.isVirtualStickAdvancedModeEnabled());
-        if (mFlightController.isVirtualStickControlModeAvailable()) {
+        if (mFlightController.isVirtualStickControlModeAvailable() && yaw != 0.0f) {
             Log.d(TAG, "Sending command to drone");
 
             FlightControlData fcd = new FlightControlData(
                     -pitch,
-                    roll,
+                    0,//roll,
                     yaw,
                     throttle);
 
