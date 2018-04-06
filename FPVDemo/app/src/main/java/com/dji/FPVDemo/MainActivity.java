@@ -44,7 +44,6 @@ import dji.sdk.camera.VideoFeeder;
 import dji.sdk.codec.DJICodecManager;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.gimbal.Gimbal;
-import dji.sdk.mission.MissionControl;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 import dji.sdk.useraccount.UserAccountManager;
@@ -72,10 +71,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     private SensorManager mSensorManager;
     private SensorEventListener gyroscopeSensorListener;
 
-    private float pitch = 0.0f;
     private float roll = 0.0f;
+    private float pitch = 0.0f;
     private float yaw = 0.0f;
-    private float throttle = 1.6f;
+    private float throttle = 0.5f;
 
     private boolean canSendData = false;
 
@@ -104,7 +103,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         initFlightController();
         initRecognition();
-
     }
 
     protected void onProductChange() {
@@ -130,7 +128,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onResume() {
-        Log.e(TAG, "onResume");
+        Log.d(TAG, "onResume");
         super.onResume();
         initPreviewer();
         onProductChange();
@@ -146,10 +144,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         Log.e(TAG, "onPause");
         uninitPreviewer();
         canSendData = false;
-        if(mFlightController != null){
-            mFlightController.setVirtualStickModeEnabled(true, null);
-            mFlightController.setVirtualStickAdvancedModeEnabled(true);
-        }
         if(mSensorManager != null) mSensorManager.unregisterListener(this);
         super.onPause();
     }
@@ -171,6 +165,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         uninitPreviewer();
         uninitFlightController();
         if( droidSpeech != null) droidSpeech.closeDroidSpeechOperations();
+        droidSpeech = null;
         super.onDestroy();
     }
 
@@ -211,33 +206,18 @@ public class MainActivity extends Activity implements SensorEventListener {
                         ? "Success"
                         : djiError.getDescription()));
                 canSendData = true;
-                MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
-                missionControl.stopTimeline();
 
-                mFlightController.setVirtualStickModeEnabled(true, new CommonCallbacks.CompletionCallback() {
-                    @Override
-                    public void onResult(DJIError djiError) {
-                        Log.d(TAG,"Virtual stick enabled. Result: " + (djiError == null
-                                ? "Success"
-                                : djiError.getDescription()));
-
-                        startSendingData();
-                    }
-                });
-                mFlightController.setVirtualStickAdvancedModeEnabled(true);
+                startSendingData();
             }
         });
     }
 
     private void land(){
         canSendData = false;
-        mFlightController.setVirtualStickModeEnabled(true, null);
-        mFlightController.setVirtualStickAdvancedModeEnabled(true);
-
         mFlightController.startLanding(new CommonCallbacks.CompletionCallback() {
             @Override
             public void onResult(DJIError djiError) {
-                Log.d(TAG,"Landing done. Result: " + (djiError == null
+                Log.d(TAG,"Landing done. Refsult: " + (djiError == null
                         ? "Success"
                         : djiError.getDescription()));
             }
@@ -402,53 +382,43 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     private void initFlightController() {
-        if (isFlightControllerSupported()) {
-            mFlightController = ((Aircraft) DJISDKManager.getInstance().getProduct()).getFlightController();
-            MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
-            missionControl.stopTimeline();
-            mFlightController.getFlightAssistant().setCollisionAvoidanceEnabled(true,null);
-            mFlightController.getFlightAssistant().setActiveObstacleAvoidanceEnabled(true,null);
-            mFlightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
-            mFlightController.setYawControlMode(YawControlMode.ANGLE);
-            mFlightController.setRollPitchControlMode(RollPitchControlMode.ANGLE);
-
-            Gimbal gimbal = DJISDKManager.getInstance().getProduct().getGimbal();
-            Number value = ((DJIParamMinMaxCapability) (gimbal.getCapabilities().get(CapabilityKey.ADJUST_PITCH))).getMin();
-            Rotation.Builder builder = new Rotation.Builder().mode(RotationMode.ABSOLUTE_ANGLE).time(2);
-            value = value.doubleValue()*0.1;
-            builder.pitch(value.floatValue());
-            gimbal.rotate(builder.build(),null);
-
-            mFlightController.setTerrainFollowModeEnabled(false, new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onResult(DJIError djiError) {
-                    Log.d(TAG,"Follow me disabled. Result: " + (djiError == null
-                            ? "Success"
-                            : djiError.getDescription()));
-                }
-            });
-            mFlightController.setTripodModeEnabled(false,new CommonCallbacks.CompletionCallback() {
-                @Override
-                public void onResult(DJIError djiError) {
-                    Log.d(TAG,"Tripod mode disabled. Result: " + (djiError == null
-                            ? "Success"
-                            : djiError.getDescription()));
-                }
-            });
-
-            mFlightController.setFlightOrientationMode(FlightOrientationMode.AIRCRAFT_HEADING,
-                    new CommonCallbacks.CompletionCallback() {
-                        @Override
-                        public void onResult(DJIError djiError) {
-                            Log.d(TAG,"Aircraft heading. Result: " + (djiError == null
-                                    ? "Success"
-                                    : djiError.getDescription()));
-                        }
-                    });
-
-        }else{
-            Log.e(TAG,"Flight not supported");
+        mFlightController = ModuleVerificationUtil.getFlightController();
+        if (mFlightController == null) {
+            Log.e(TAG,"Flight controller could not be initialized");
+            return;
         }
+
+        mFlightController.getFlightAssistant().setCollisionAvoidanceEnabled(true,null);
+        mFlightController.getFlightAssistant().setActiveObstacleAvoidanceEnabled(true,null);
+        mFlightController.setRollPitchCoordinateSystem(FlightCoordinateSystem.BODY);
+        mFlightController.setYawControlMode(YawControlMode.ANGLE);
+        mFlightController.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
+
+        Gimbal gimbal = DJISDKManager.getInstance().getProduct().getGimbal();
+        Number value = ((DJIParamMinMaxCapability) (gimbal.getCapabilities().get(CapabilityKey.ADJUST_PITCH))).getMin();
+        Rotation.Builder builder = new Rotation.Builder().mode(RotationMode.ABSOLUTE_ANGLE).time(2);
+        value = value.doubleValue()*0.1;
+        builder.pitch(value.floatValue());
+        gimbal.rotate(builder.build(),null);
+
+        mFlightController.setFlightOrientationMode(FlightOrientationMode.AIRCRAFT_HEADING,
+                new CommonCallbacks.CompletionCallback() {
+                    @Override
+                    public void onResult(DJIError djiError) {
+                        Log.d(TAG,"Aircraft heading. Result: " + (djiError == null
+                                ? "Success"
+                                : djiError.getDescription()));
+                    }
+                });
+
+        mFlightController.setVirtualStickModeEnabled(true, new CommonCallbacks.CompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+                Log.d(TAG,"Virtual stick enabled. Result: " + (djiError == null
+                        ? "Success"
+                        : djiError.getDescription()));
+            }
+        });
     }
 
     private boolean isFlightControllerSupported() {
@@ -486,8 +456,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         convertToDegrees(mOrientationAngles);
     }
 
-    private float lastPhoneYaw = 0.0f;
-    private float augmentYaw = 0.0f;
+    private float lastMobileOrientation = 0.0f;
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -509,30 +478,68 @@ public class MainActivity extends Activity implements SensorEventListener {
         convertToDegrees(mOrientationAngles);
         if(mOrientationAngles[0] != 0.0f) {
 
-            if (calibrationAngle == 1000.0f) {
-                calibrationAngle = mFlightController.getCompass().getHeading() - mOrientationAngles[0];
-                yaw = calibrationAngle;
+            /////// YAW ///////
+
+            float mobileOrientation = mOrientationAngles[0];
+            float droneOrientation = mFlightController.getCompass().getHeading();
+
+            if(yaw == 0.0f){
+                // First iteration
+                yaw = droneOrientation;
+            } else{
+                // All other iterations
+                yaw -= lastMobileOrientation - mobileOrientation;
             }
+            lastMobileOrientation = mobileOrientation;
 
-            augmentYaw = mOrientationAngles[0] - lastPhoneYaw;
-            lastPhoneYaw = mOrientationAngles[0];
-            yaw = yaw + augmentYaw;
-
+            // Fix the yaw degrees in case is over 180 or below -180. Example: -200 is converted to 160
             if (yaw > 180) yaw = -360 + yaw;
             if (yaw < -180) yaw = 360 + yaw;
 
-            roll = (float) (mOrientationAngles[1] * 0.5);
-            pitch = (float) ((mOrientationAngles[2] + 90) * 0.05);
+            ///////// ROLL /////////
+            // Phone roll goes from 0 to -180. 0 maximum forward. -180 maximum backward.
+            // For us, -45 and -135 would be the maximum degrees for maximum speed (forward and backward)
+            float rollJoyControlMaxSpeed = 10.0f;
+            float mobileRoll = mOrientationAngles[2];
+            if (mobileRoll > -45){
+                mobileRoll = -45.0f;
+            }
+            else if (mobileRoll < -135){
+                mobileRoll = -135.0f;
+            }
+            float normalizedRoll = -(((Math.abs(mobileRoll)-45)/45)-1);
 
-            if (pitch > 30) pitch = 30;
-            if (pitch < -30) pitch = -30;
-            if (roll > 30) roll = 30;
-            if (roll < -30) roll = -30;
+            if(Math.abs(normalizedRoll) < 0.2){
+                normalizedRoll = 0;
+            }
+
+            roll = (rollJoyControlMaxSpeed * normalizedRoll);
+
+            ///////// PITCH /////////
+            // Phone roll goes from 90 to -90. 90 maximum left. -90 maximum rigth. We convert that
+            // so the values gos from -10 to 10. -10 maximum left and 10 maximum right
+            float pitchJoyControlMaxSpeed = 10.0f;
+            float mobilePitch = mOrientationAngles[1];
+            if (mobilePitch < -45){
+                mobilePitch = -45.0f;
+            }
+            else if (mobilePitch > 45){
+                mobilePitch = 45.0f;
+            }
+            float normalizedPitch = -(mobilePitch/45);
+
+            if(Math.abs(normalizedPitch) < 0.2){
+                normalizedPitch = 0;
+            }
+
+            pitch = (pitchJoyControlMaxSpeed * normalizedPitch);
+
+            Log.d(TAG,"AAA Pitch" + pitch);
         }
 
         MainActivity.this.runOnUiThread(new Runnable() {
             public void run() {
-                tvDebug.setText("Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + yaw);
+                tvDebug.setText("Pitch: " + roll + ", Roll: " + pitch + ", Yaw: " + yaw);
             }
         });
     }
@@ -548,9 +555,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     private void uninitFlightController(){
         canSendData = false;
-        mFlightController.setVirtualStickModeEnabled(true, null);
-        mFlightController.setVirtualStickAdvancedModeEnabled(true);
-
     }
 
     private void startSendingData(){
@@ -567,20 +571,16 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     private void sendFlightControlData() {
-        MissionControl missionControl = DJISDKManager.getInstance().getMissionControl();
-        missionControl.stopTimeline();
         Log.d(TAG, "available: " + mFlightController.isVirtualStickControlModeAvailable());
-        Log.d(TAG, "advanced enabled: " + mFlightController.isVirtualStickAdvancedModeEnabled());
         if (mFlightController.isVirtualStickControlModeAvailable() && yaw != 0.0f) {
             Log.d(TAG, "Sending command to drone");
 
-            FlightControlData fcd = new FlightControlData(
-                    -pitch,
-                    0,//roll, No roll added for a easier navigation
-                    yaw,
-                    throttle);
-
-            mFlightController.sendVirtualStickFlightControlData(fcd,
+            mFlightController.sendVirtualStickFlightControlData(
+                    new FlightControlData(
+                            pitch,
+                            roll,
+                            yaw,
+                            throttle),
                     new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onResult(DJIError djiError) {
@@ -589,7 +589,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                                     : djiError.getDescription()));
                         }
                     });
-            Log.d(TAG, "Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + yaw + ", Throttle: " + throttle);
+            Log.d(TAG, "Pitch: " + roll + ", Roll: " + pitch + ", Yaw: " + yaw + ", Throttle: " + throttle);
 
         } else {
             Log.e(TAG, "Flight not available");
@@ -645,7 +645,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             }
         });
 
-        // Start speech recognition
-        droidSpeech.startDroidSpeechRecognition();
+        // Start speech recognition, check null because onDestroy could be called in between the method
+        if(droidSpeech != null) droidSpeech.startDroidSpeechRecognition();
     }
 }

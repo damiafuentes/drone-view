@@ -178,4 +178,19 @@ public class FPVDemoApplication extends Application{
         }
     };
 
+    public static boolean isAircraftConnected() {
+        return getProductInstance() != null && getProductInstance() instanceof Aircraft;
+    }
+
+    public static boolean isHandHeldConnected() {
+        return getProductInstance() != null && getProductInstance() instanceof HandHeld;
+    }
+
+    public static synchronized Aircraft getAircraftInstance() {
+        if (!isAircraftConnected()) {
+            return null;
+        }
+        return (Aircraft) getProductInstance();
+    }
+
 }
