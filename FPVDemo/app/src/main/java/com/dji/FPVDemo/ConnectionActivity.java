@@ -31,6 +31,12 @@ import dji.sdk.base.BaseProduct;
 import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
+/**
+ * Starting activity that is used to establish the connection with the drone wifi.
+ *
+ * Created by Damià Fuentes and Eric Velazquez
+ * April 6th 2018
+ */
 public class ConnectionActivity extends Activity implements View.OnClickListener{
 
     private static final String TAG = ConnectionActivity.class.getName();
@@ -149,25 +155,25 @@ public class ConnectionActivity extends Activity implements View.OnClickListener
 
     @Override
     public void onResume() {
-        Log.e(TAG, "onResume");
+        Log.d(TAG, "onResume");
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        Log.e(TAG, "onPause");
+        Log.d(TAG, "onPause");
         super.onPause();
     }
 
     @Override
     public void onStop() {
-        Log.e(TAG, "onStop");
+        Log.d(TAG, "onStop");
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        Log.e(TAG, "onDestroy");
+        Log.d(TAG, "onDestroy");
         unregisterReceiver(mReceiver);
         super.onDestroy();
     }
