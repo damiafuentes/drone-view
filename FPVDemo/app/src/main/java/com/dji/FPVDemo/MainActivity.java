@@ -10,7 +10,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -129,6 +128,8 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         initPreviewer();
         initPhoneSensors();
 
+        startRecord();
+
         if(mVideoSurface == null) {
             Log.e(TAG, "mVideoSurfaceRigth is null");
         }
@@ -141,6 +142,9 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         uninitPhoneSensors();
         // In order to prevent accidental crashes
         land();
+
+        stopRecord();
+        
         super.onPause();
     }
 
@@ -168,7 +172,9 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         TextView tvStop = (TextView) findViewById(R.id.tvStop);
         TextView tvStart = (TextView) findViewById(R.id.tvStart);
         tvDebug = (TextView) findViewById(R.id.tvDebug);
-        tvDebug.setVisibility(View.GONE);
+        tvStop.setVisibility(View.INVISIBLE);
+        tvStart.setVisibility(View.INVISIBLE);
+        tvDebug.setVisibility(View.INVISIBLE);
 
         if (null != mVideoSurface) {
             mVideoSurface.setSurfaceTextureListener(surfaceTextureListener);
@@ -195,6 +201,10 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     }
 
     private void takeOff(){
+        roll = 0.0f;
+        pitch = 0.0f;
+        yaw = 0.0f;
+        throttle = 1.5f;
         mFlightController.startTakeoff(new CommonCallbacks.CompletionCallback() {
             @Override
             public void onResult(DJIError djiError) {
@@ -489,7 +499,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         // Update phone orientation angles
         updateOrientationAngles();
 
-        if(mOrientationAngles[0] != 0.0f) {
+        if(mOrientationAngles[0] != 0.0f && mFlightController != null) {
 
             // YAW
             // Calculate the phone orientation increase and sum it to the drone orientation
@@ -581,6 +591,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
 
     private void sendFlightControlData() {
         Log.d(TAG, "available: " + mFlightController.isVirtualStickControlModeAvailable());
+
         if (mFlightController.isVirtualStickControlModeAvailable() && yaw != 0.0f) {
             Log.d(TAG, "Sending command to drone");
 
@@ -621,7 +632,11 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         droidSpeech = new DroidSpeech(this, null);
         droidSpeech.setOnDroidSpeechListener(new OnDSListener() {
             @Override
-            public void onDroidSpeechSupportedLanguages(String currentSpeechLanguage, List<String> supportedSpeechLanguages) {}
+            public void onDroidSpeechSupportedLanguages(String currentSpeechLanguage, List<String> supportedSpeechLanguages) {
+//                if(supportedSpeechLanguages.contains("en-US")) {
+//                    droidSpeech.setPreferredLanguage("en-US");
+//                }
+            }
 
             @Override
             public void onDroidSpeechRmsChanged(float rmsChangedValue) {}
@@ -633,7 +648,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
             public void onDroidSpeechFinalResult(String finalSpeechResult) {
                 Log.d(TAG,"onDroidSpeechFinalResult: " + finalSpeechResult);
                 if(mFlightController != null) {
-                    if (finalSpeechResult.contains("take off")) {
+                    if (finalSpeechResult.contains("take off") || finalSpeechResult.contains("takeoff") || finalSpeechResult.contains("take of")) {
                         takeOff();
                     } else if (finalSpeechResult.contains("land")) {
                         land();
