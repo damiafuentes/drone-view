@@ -27,5 +27,10 @@
     <string name="SeeVoiceCommands">See voice commands</string>
     <string name="VoiceCommands">Voice commands</string>
     <string name="VoiceCommandsText">When you start your FPV your drone will follow the following voice commands: \n  - Take off\n  - Land\n  - Up\n  - Down\n  - Photo\n  - Start recording\n  - Stop recording</string>
+    <string name="FaceStraigth">Face straigth</string>
+    <string name="Face45">Face 45 degrees down</string>
+    <string name="FaceDown">Face completly down</string>
+    <string name="Gimbal">Gimbal</string>
+    <string name="Throttle">Throttle</string>
 
 </resources>

@@ -1,4 +1,4 @@
-package com.dji.FPVDemo;
+package com.uccs.DroneView;
 
 import android.app.Application;
 import android.content.Context;
@@ -8,21 +8,21 @@ import com.secneo.sdk.Helper;
 
 public class MApplication extends Application {
 
-    private FPVDemoApplication fpvDemoApplication;
+    private FPVApplication fpvApplication;
     @Override
     protected void attachBaseContext(Context paramContext) {
         super.attachBaseContext(paramContext);
         Helper.install(MApplication.this);
-        if (fpvDemoApplication == null) {
-            fpvDemoApplication = new FPVDemoApplication();
-            fpvDemoApplication.setContext(this);
+        if (fpvApplication == null) {
+            fpvApplication = new FPVApplication();
+            fpvApplication.setContext(this);
         }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        fpvDemoApplication.onCreate();
+        fpvApplication.onCreate();
     }
 
 }

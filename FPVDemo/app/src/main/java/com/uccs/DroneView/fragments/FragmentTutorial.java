@@ -1,4 +1,4 @@
-package com.dji.FPVDemo.fragments;
+package com.uccs.DroneView.fragments;
 
 
 import android.os.Bundle;
@@ -7,27 +7,26 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.dji.FPVDemo.R;
-import com.dji.FPVDemo.StartActivity;
+import com.uccs.DroneView.R;
+import com.uccs.DroneView.StartActivity;
 
 
-public class FragmentStart extends Fragment {
+public class FragmentTutorial extends Fragment {
 
-    public TextView tvStart;
-    public TextView tvTutorial;
-    public ImageView ivSettings;
+    public TextView tvGotIt;
+    public TextView tvWatchVideo;
+    public TextView tvSeeVoiceCommands;
 
     public StartActivity activity;
 
-    public FragmentStart() {
+    public FragmentTutorial() {
         // Required empty public constructor
     }
 
-    public static FragmentStart newInstance() {
-        return new FragmentStart();
+    public static FragmentTutorial newInstance() {
+        return new FragmentTutorial();
     }
 
     @Override
@@ -40,10 +39,10 @@ public class FragmentStart extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_start, container, false);
-        tvStart = view.findViewById(R.id.tvStart);
-        tvTutorial = view.findViewById(R.id.tvTutorial);
-        ivSettings = view.findViewById(R.id.ivSettings);
+        View view = inflater.inflate(R.layout.fragment_tutorial, container, false);
+        tvGotIt = view.findViewById(R.id.tvGotIt);
+        tvWatchVideo = view.findViewById(R.id.tvWatchVideo);
+        tvSeeVoiceCommands = view.findViewById(R.id.tvVoiceCommands);
         return view;
     }
 
@@ -53,24 +52,24 @@ public class FragmentStart extends Fragment {
 
         activity = (StartActivity) getActivity();
 
-        tvStart.setOnClickListener(new View.OnClickListener() {
+        tvGotIt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.commitFragment(FragmentConnection.newInstance(),"FragmentConnection",true);
+                activity.getSupportFragmentManager().popBackStack();
             }
         });
 
-        tvTutorial.setOnClickListener(new View.OnClickListener() {
+        tvWatchVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.commitFragment(FragmentTutorial.newInstance(),"FragmentTutorial",true);
+
             }
         });
 
-        ivSettings.setOnClickListener(new View.OnClickListener() {
+        tvSeeVoiceCommands.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.commitFragment(FragmentSettings.newInstance(),"FragmentSettings",true);
+                activity.commitFragment(FragmentVoiceCommands.newInstance(),"FragmentVoiceCommands",true);
             }
         });
     }

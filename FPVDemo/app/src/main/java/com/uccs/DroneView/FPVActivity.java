@@ -1,7 +1,8 @@
-package com.dji.FPVDemo;
+package com.uccs.DroneView;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Sensor;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
@@ -23,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.uccs.DroneView.R;
 import com.vikramezhil.droidspeech.DroidSpeech;
 import com.vikramezhil.droidspeech.OnDSListener;
 
@@ -31,6 +34,7 @@ import java.util.Locale;
 
 import dji.common.camera.SettingsDefinitions;
 import dji.common.error.DJIError;
+import dji.common.flightcontroller.ConnectionFailSafeBehavior;
 import dji.common.flightcontroller.FlightOrientationMode;
 import dji.common.flightcontroller.virtualstick.FlightControlData;
 import dji.common.flightcontroller.virtualstick.FlightCoordinateSystem;
@@ -50,15 +54,19 @@ import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.gimbal.Gimbal;
 import dji.sdk.sdkmanager.DJISDKManager;
 
+import static com.uccs.DroneView.fragments.FragmentSettings.TAG_GIMBAL;
+import static com.uccs.DroneView.fragments.FragmentSettings.TAG_SHARED_PREFS;
+import static com.uccs.DroneView.fragments.FragmentSettings.TAG_THROTTLE;
+
 /**
  * Main activity that is used to control the drone.
  *
  * Created by Damià Fuentes and Eric Velazquez
  * April 6th 2018
  */
-public class MainActivity extends Activity implements SensorEventListener, TextToSpeech.OnInitListener {
+public class FPVActivity extends Activity implements SensorEventListener, TextToSpeech.OnInitListener {
 
-    private static final String TAG = MainActivity.class.getName();
+    private static final String TAG = FPVActivity.class.getName();
     private VideoFeeder.VideoDataCallback mReceivedVideoDataCallBack = null;
 
     // Codec for video live view
@@ -80,7 +88,8 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     private float roll = 0.0f;
     private float pitch = 0.0f;
     private float yaw = 0.0f;
-    private float throttle = 0.2f;
+    private float throttle = 1f;
+    private float gimbal = -1f;
 
     // False if drone is not flying, true if is it flying and data can be sent to the drone in order to move
     private boolean canSendData = false;
@@ -96,11 +105,12 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         initUI();
+
+        setSettingsValues();
 
         // The callback for receiving the raw H264 video data for camera live view
         mReceivedVideoDataCallBack = new VideoFeeder.VideoDataCallback() {
@@ -121,14 +131,20 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    private void setSettingsValues(){
+        SharedPreferences prefs = getSharedPreferences(TAG_SHARED_PREFS, MODE_PRIVATE);
+        gimbal = -((float) prefs.getInt(TAG_GIMBAL, 45));
+        throttle = (float) prefs.getInt(TAG_THROTTLE, 1);
+    }
+
     @Override
     public void onResume() {
         Log.d(TAG, "onResume");
         super.onResume();
         initPreviewer();
         initPhoneSensors();
-
-        startRecord();
+        initRecognition();
+        initTextToSpeech();
 
         if(mVideoSurface == null) {
             Log.e(TAG, "mVideoSurfaceRigth is null");
@@ -142,9 +158,9 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         uninitPhoneSensors();
         // In order to prevent accidental crashes
         land();
+        uninitRecognition();
+        uninitTextToSpeech();
 
-        stopRecord();
-        
         super.onPause();
     }
 
@@ -157,10 +173,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     @Override
     protected void onDestroy() {
         Log.e(TAG, "onDestroy");
-        uninitPreviewer();
         uninitFlightController();
-        uninitRecognition();
-        uninitTextToSpeech();
         super.onDestroy();
     }
 
@@ -204,7 +217,6 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         roll = 0.0f;
         pitch = 0.0f;
         yaw = 0.0f;
-        throttle = 1.5f;
         mFlightController.startTakeoff(new CommonCallbacks.CompletionCallback() {
             @Override
             public void onResult(DJIError djiError) {
@@ -215,7 +227,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
 
                 startSendingData();
 
-                speech("Starting take off. Stay straight until drone has stopped.");
+                speech("Starting!");
             }
         });
     }
@@ -229,13 +241,13 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
                 Log.d(TAG,"Landing done. Result: " + (djiError == null
                         ? "Success"
                         : djiError.getDescription()));
-                speech("Landing done correctly!");
+                speech("Starting!");
             }
         });
     }
 
     private void initPreviewer() {
-        BaseProduct product = FPVDemoApplication.getProductInstance();
+        BaseProduct product = FPVApplication.getProductInstance();
 
         if (product == null || !product.isConnected()) {
             showToast(getString(R.string.disconnected));
@@ -250,7 +262,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     }
 
     private void uninitPreviewer() {
-        Camera camera = FPVDemoApplication.getCameraInstance();
+        Camera camera = FPVApplication.getCameraInstance();
         if (camera != null){
             // Reset the callback
             VideoFeeder.getInstance().getPrimaryVideoFeed().setCallback(null);
@@ -262,7 +274,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             if (mCodecManager == null) {
-                mCodecManager = new DJICodecManager(MainActivity.this, surface, width, height);
+                mCodecManager = new DJICodecManager(FPVActivity.this, surface, width, height);
             }
         }
 
@@ -295,14 +307,14 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     public void showToast(final String msg) {
         runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(FPVActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void switchCameraMode(SettingsDefinitions.CameraMode cameraMode){
 
-        Camera camera = FPVDemoApplication.getCameraInstance();
+        Camera camera = FPVApplication.getCameraInstance();
         if (camera != null) {
             camera.setMode(cameraMode, new CommonCallbacks.CompletionCallback() {
                 @Override
@@ -321,7 +333,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     // Method for taking photo
     private void captureAction(){
 
-        final Camera camera = FPVDemoApplication.getCameraInstance();
+        final Camera camera = FPVApplication.getCameraInstance();
         if (camera != null) {
 
             SettingsDefinitions.ShootPhotoMode photoMode = SettingsDefinitions.ShootPhotoMode.SINGLE; // Set the camera capture mode as Single mode
@@ -355,7 +367,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     // Method for start recording
     private void startRecord(){
 
-        final Camera camera = FPVDemoApplication.getCameraInstance();
+        final Camera camera = FPVApplication.getCameraInstance();
         if (camera != null) {
             camera.startRecordVideo(new CommonCallbacks.CompletionCallback(){
                 @Override
@@ -376,7 +388,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     // Method for stop recording
     private void stopRecord(){
 
-        Camera camera = FPVDemoApplication.getCameraInstance();
+        Camera camera = FPVApplication.getCameraInstance();
         if (camera != null) {
             camera.stopRecordVideo(new CommonCallbacks.CompletionCallback(){
 
@@ -411,12 +423,19 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         mFlightController.setYawControlMode(YawControlMode.ANGLE);
         mFlightController.setRollPitchControlMode(RollPitchControlMode.VELOCITY);
 
-        Gimbal gimbal = DJISDKManager.getInstance().getProduct().getGimbal();
-        Number value = ((DJIParamMinMaxCapability) (gimbal.getCapabilities().get(CapabilityKey.ADJUST_PITCH))).getMin();
+        // Go home on fail connection or very low battery
+        mFlightController.setConnectionFailSafeBehavior(ConnectionFailSafeBehavior.GO_HOME, null);
+        mFlightController.setSmartReturnToHomeEnabled(true,null);
+        mFlightController.confirmSmartReturnToHomeRequest(true,null);
+
+        Gimbal droneGimbal = DJISDKManager.getInstance().getProduct().getGimbal();
         Rotation.Builder builder = new Rotation.Builder().mode(RotationMode.ABSOLUTE_ANGLE).time(2);
+        Log.d(TAG,"Gimbal: " + gimbal);
+        Number value = ((DJIParamMinMaxCapability) (droneGimbal.getCapabilities().get(CapabilityKey.ADJUST_PITCH))).getMin();
         value = value.doubleValue()*0.1;
-        builder.pitch(value.floatValue());
-        gimbal.rotate(builder.build(),null);
+        Log.d(TAG,"Gimbal drone: " + value.floatValue());
+        builder.pitch(gimbal);
+        droneGimbal.rotate(builder.build(),null);
 
         mFlightController.setFlightOrientationMode(FlightOrientationMode.AIRCRAFT_HEADING,
                 new CommonCallbacks.CompletionCallback() {
@@ -555,7 +574,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
             pitch = (pitchJoyControlMaxSpeed * normalizedPitch);
         }
 
-        MainActivity.this.runOnUiThread(new Runnable() {
+        FPVActivity.this.runOnUiThread(new Runnable() {
             public void run() {
                 String str = "Pitch: " + roll + ", Roll: " + pitch + ", Yaw: " + yaw;
                 tvDebug.setText(str);
@@ -707,6 +726,22 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
             } else {
                 // The TTS engine has been successfully initialized.
                 Log.d(TAG,"TextToSpeech initialization succes.");
+                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                    @Override
+                    public void onDone(String utteranceId) {
+                        if(droidSpeech != null) droidSpeech.startDroidSpeechRecognition();
+                    }
+
+                    @Override
+                    public void onError(String utteranceId) {
+                        if(droidSpeech != null) droidSpeech.startDroidSpeechRecognition();
+                    }
+
+                    @Override
+                    public void onStart(String utteranceId) {
+                        if(droidSpeech != null) droidSpeech.closeDroidSpeechOperations();
+                    }
+                });
                 startingSpeech();
             }
         }else{
@@ -714,11 +749,14 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         }
     }
 
+
+
     private void uninitTextToSpeech(){
         if(tts != null){
             tts.stop();
             tts.shutdown();
         }
+        tts = null;
     }
 
     private void speech(String stringToSpeak){

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dji.FPVDemo">
+    package="com.uccs.DroneView">
 
     <!-- DJI SDK need permission -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -35,7 +35,7 @@
         android:required="true" />
 
     <application
-        android:name=".MApplication"
+        android:name="com.uccs.DroneView.MApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -47,7 +47,7 @@
 
         <meta-data
             android:name="com.dji.sdk.API_KEY"
-            android:value="69226b358314590856c6aa3a" />
+            android:value="532afedb1de6dc8c1e4b9af5" />
 
         <activity
             android:name="dji.sdk.sdkmanager.DJIAoaControllerActivity"
@@ -65,7 +65,7 @@
         <!-- DJI SDK -->
 
         <activity
-            android:name=".StartActivity"
+            android:name="com.uccs.DroneView.StartActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -75,7 +75,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.uccs.DroneView.FPVActivity"
             android:screenOrientation="landscape" />
 
     </application>

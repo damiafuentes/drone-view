@@ -1,4 +1,4 @@
-package com.dji.FPVDemo.fragments;
+package com.uccs.DroneView.fragments;
 
 
 import android.os.Bundle;
@@ -9,24 +9,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.dji.FPVDemo.R;
-import com.dji.FPVDemo.StartActivity;
+import com.uccs.DroneView.R;
+import com.uccs.DroneView.StartActivity;
 
 
-public class FragmentTutorial extends Fragment {
+public class FragmentVoiceCommands extends Fragment {
 
     public TextView tvGotIt;
-    public TextView tvWatchVideo;
-    public TextView tvSeeVoiceCommands;
 
     public StartActivity activity;
 
-    public FragmentTutorial() {
+    public FragmentVoiceCommands() {
         // Required empty public constructor
     }
 
-    public static FragmentTutorial newInstance() {
-        return new FragmentTutorial();
+    public static FragmentVoiceCommands newInstance() {
+        return new FragmentVoiceCommands();
     }
 
     @Override
@@ -39,10 +37,8 @@ public class FragmentTutorial extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_tutorial, container, false);
+        View view = inflater.inflate(R.layout.fragment_voice_commands, container, false);
         tvGotIt = view.findViewById(R.id.tvGotIt);
-        tvWatchVideo = view.findViewById(R.id.tvWatchVideo);
-        tvSeeVoiceCommands = view.findViewById(R.id.tvVoiceCommands);
         return view;
     }
 
@@ -56,20 +52,6 @@ public class FragmentTutorial extends Fragment {
             @Override
             public void onClick(View v) {
                 activity.getSupportFragmentManager().popBackStack();
-            }
-        });
-
-        tvWatchVideo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        tvSeeVoiceCommands.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.commitFragment(FragmentVoiceCommands.newInstance(),"FragmentVoiceCommands",true);
             }
         });
     }

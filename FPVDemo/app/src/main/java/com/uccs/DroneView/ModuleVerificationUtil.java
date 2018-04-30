@@ -1,4 +1,4 @@
-package com.dji.FPVDemo;
+package com.uccs.DroneView;
 
 import android.support.annotation.Nullable;
 
@@ -12,45 +12,45 @@ import dji.sdk.products.HandHeld;
  */
 public class ModuleVerificationUtil {
     public static boolean isProductModuleAvailable() {
-        return (null != FPVDemoApplication.getProductInstance());
+        return (null != FPVApplication.getProductInstance());
     }
 
     public static boolean isAircraft() {
-        return FPVDemoApplication.getProductInstance() instanceof Aircraft;
+        return FPVApplication.getProductInstance() instanceof Aircraft;
     }
 
     public static boolean isHandHeld() {
-        return FPVDemoApplication.getProductInstance() instanceof HandHeld;
+        return FPVApplication.getProductInstance() instanceof HandHeld;
     }
 
     public static boolean isCameraModuleAvailable() {
-        return isProductModuleAvailable() && (null != FPVDemoApplication.getProductInstance().getCamera());
+        return isProductModuleAvailable() && (null != FPVApplication.getProductInstance().getCamera());
     }
 
     public static boolean isPlaybackAvailable() {
-        return isCameraModuleAvailable() && (null != FPVDemoApplication.getProductInstance()
+        return isCameraModuleAvailable() && (null != FPVApplication.getProductInstance()
                 .getCamera()
                 .getPlaybackManager());
     }
 
     public static boolean isMediaManagerAvailable() {
-        return isCameraModuleAvailable() && (null != FPVDemoApplication.getProductInstance()
+        return isCameraModuleAvailable() && (null != FPVApplication.getProductInstance()
                 .getCamera()
                 .getMediaManager());
     }
 
     public static boolean isRemoteControllerAvailable() {
-        return isProductModuleAvailable() && isAircraft() && (null != FPVDemoApplication.getAircraftInstance()
+        return isProductModuleAvailable() && isAircraft() && (null != FPVApplication.getAircraftInstance()
                 .getRemoteController());
     }
 
     public static boolean isFlightControllerAvailable() {
-        return isProductModuleAvailable() && isAircraft() && (null != FPVDemoApplication.getAircraftInstance()
+        return isProductModuleAvailable() && isAircraft() && (null != FPVApplication.getAircraftInstance()
                 .getFlightController());
     }
 
     public static boolean isCompassAvailable() {
-        return isFlightControllerAvailable() && isAircraft() && (null != FPVDemoApplication.getAircraftInstance()
+        return isFlightControllerAvailable() && isAircraft() && (null != FPVApplication.getAircraftInstance()
                 .getFlightController()
                 .getCompass());
     }
@@ -60,26 +60,26 @@ public class ModuleVerificationUtil {
     }
 
     public static boolean isGimbalModuleAvailable() {
-        return isProductModuleAvailable() && (null != FPVDemoApplication.getProductInstance().getGimbal());
+        return isProductModuleAvailable() && (null != FPVApplication.getProductInstance().getGimbal());
     }
 
     public static boolean isAirlinkAvailable() {
-        return isProductModuleAvailable() && (null != FPVDemoApplication.getProductInstance().getAirLink());
+        return isProductModuleAvailable() && (null != FPVApplication.getProductInstance().getAirLink());
     }
 
     public static boolean isWiFiLinkAvailable() {
-        return isAirlinkAvailable() && (null != FPVDemoApplication.getProductInstance().getAirLink().getWiFiLink());
+        return isAirlinkAvailable() && (null != FPVApplication.getProductInstance().getAirLink().getWiFiLink());
     }
 
     public static boolean isLightbridgeLinkAvailable() {
-        return isAirlinkAvailable() && (null != FPVDemoApplication.getProductInstance()
+        return isAirlinkAvailable() && (null != FPVApplication.getProductInstance()
                 .getAirLink()
                 .getLightbridgeLink());
     }
 
     @Nullable
     public static Simulator getSimulator() {
-        Aircraft aircraft = FPVDemoApplication.getAircraftInstance();
+        Aircraft aircraft = FPVApplication.getAircraftInstance();
         if (aircraft != null) {
             FlightController flightController = aircraft.getFlightController();
             if (flightController != null) {
@@ -91,7 +91,7 @@ public class ModuleVerificationUtil {
 
     @Nullable
     public static FlightController getFlightController() {
-        Aircraft aircraft = FPVDemoApplication.getAircraftInstance();
+        Aircraft aircraft = FPVApplication.getAircraftInstance();
         if (aircraft != null) {
             return aircraft.getFlightController();
         }

@@ -1,4 +1,4 @@
-package com.dji.FPVDemo.fragments;
+package com.uccs.DroneView.fragments;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -21,10 +21,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dji.FPVDemo.FPVDemoApplication;
-import com.dji.FPVDemo.MainActivity;
-import com.dji.FPVDemo.R;
-import com.dji.FPVDemo.StartActivity;
+import com.uccs.DroneView.FPVApplication;
+import com.uccs.DroneView.FPVActivity;
+import com.uccs.DroneView.R;
+import com.uccs.DroneView.StartActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +115,7 @@ public class FragmentConnection extends Fragment implements View.OnClickListener
 
         // Register the broadcast receiver for receiving the device connection's changes.
         IntentFilter filter = new IntentFilter();
-        filter.addAction(FPVDemoApplication.FLAG_CONNECTION_CHANGE);
+        filter.addAction(FPVApplication.FLAG_CONNECTION_CHANGE);
         activity.registerReceiver(mReceiver, filter);
     }
 
@@ -227,7 +227,7 @@ public class FragmentConnection extends Fragment implements View.OnClickListener
     };
 
     private void refreshSDKRelativeUI() {
-        BaseProduct mProduct = FPVDemoApplication.getProductInstance();
+        BaseProduct mProduct = FPVApplication.getProductInstance();
 
         if (null != mProduct && mProduct.isConnected()) {
 
@@ -252,7 +252,7 @@ public class FragmentConnection extends Fragment implements View.OnClickListener
         switch (v.getId()) {
 
             case R.id.tvFly: {
-                Intent intent = new Intent(activity, MainActivity.class);
+                Intent intent = new Intent(activity, FPVActivity.class);
                 startActivity(intent);
                 break;
             }

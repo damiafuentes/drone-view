@@ -16,6 +16,112 @@
         android:gravity="left"
         android:textColor="@color/colorPrimary"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textStyle="bold"
+                android:textSize="16dp"
+                android:text="@string/Gimbal"
+                android:layout_marginBottom="8dp"/>
+
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rgGimbal">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rbGimbalStraigth"
+                    android:text="@string/FaceStraigth"
+                    android:textColor="@color/colorBlack"
+                    android:buttonTint="@color/colorPrimary"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rbGimbal45"
+                    android:text="@string/Face45"
+                    android:textColor="@color/colorBlack"
+                    android:buttonTint="@color/colorPrimary"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rbGimbalDown"
+                    android:text="@string/FaceDown"
+                    android:textColor="@color/colorBlack"
+                    android:buttonTint="@color/colorPrimary"/>
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textStyle="bold"
+                android:textSize="16dp"
+                android:text="@string/Throttle"
+                android:layout_marginBottom="8dp"/>
+
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rgThrottle">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rbThrottle1"
+                    android:text="1 meter"
+                    android:textColor="@color/colorBlack"
+                    android:buttonTint="@color/colorPrimary"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rbThrottle5"
+                    android:text="5 meters"
+                    android:textColor="@color/colorBlack"
+                    android:buttonTint="@color/colorPrimary"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rbThrottle10"
+                    android:text="10 meters"
+                    android:textColor="@color/colorBlack"
+                    android:buttonTint="@color/colorPrimary"/>
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvGoBack"
         android:layout_width="wrap_content"
