@@ -112,6 +112,7 @@ public class FragmentConnection extends Fragment implements View.OnClickListener
         activity = (StartActivity) getActivity();
 
         checkAndRequestPermissions();
+        refreshSDKRelativeUI();
 
         // Register the broadcast receiver for receiving the device connection's changes.
         IntentFilter filter = new IntentFilter();
@@ -159,8 +160,9 @@ public class FragmentConnection extends Fragment implements View.OnClickListener
         // If there is enough permission, we will start the registration
         if (missingPermission.isEmpty()) {
             startSDKRegistration();
+            refreshSDKRelativeUI();
         } else {
-            showToast("Missing permissions!!!");
+            showToast("Missing permissions!!! I should accept all of them to continue.");
         }
     }
 
@@ -177,6 +179,7 @@ public class FragmentConnection extends Fragment implements View.OnClickListener
                                 DJILog.e("App registration", DJISDKError.REGISTRATION_SUCCESS.getDescription());
                                 DJISDKManager.getInstance().startConnectionToProduct();
                                 showToast("Register Success");
+                                refreshSDKRelativeUI();
                             } else {
                                 showToast( "Register sdk fails, check network is available");
                             }
