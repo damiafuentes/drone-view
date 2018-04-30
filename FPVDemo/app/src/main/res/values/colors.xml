@@ -4,6 +4,10 @@
     <color name="colorWhiteTranslucent">#9effffff</color>
     <color name="colorBlack">#000000</color>
     <color name="colorPrimary">#3F51B5</color>
+    <color name="colorDisabled">#7c7c7c</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="white">#ffffff</color>
+    <color name="white_translucent">#46ffffff</color>
+    <color name="blackTranslucent">#6c000000</color>
 </resources>
