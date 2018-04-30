@@ -1,4 +1,4 @@
-package com.dji.FPVDemo;
+package com.dji.FPVDemo.fragments;
 
 
 import android.os.Bundle;
@@ -7,19 +7,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dji.FPVDemo.R;
+import com.dji.FPVDemo.StartActivity;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentTutorial#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class FragmentTutorial extends Fragment {
 
     public TextView tvGotIt;
     public TextView tvWatchVideo;
+    public TextView tvSeeVoiceCommands;
 
     public StartActivity activity;
 
@@ -43,7 +41,8 @@ public class FragmentTutorial extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tutorial, container, false);
         tvGotIt = view.findViewById(R.id.tvGotIt);
-        tvWatchVideo = view.findViewById(R.id.tvVideo);
+        tvWatchVideo = view.findViewById(R.id.tvWatchVideo);
+        tvSeeVoiceCommands = view.findViewById(R.id.tvVoiceCommands);
         return view;
     }
 
@@ -64,6 +63,13 @@ public class FragmentTutorial extends Fragment {
             @Override
             public void onClick(View v) {
 
+            }
+        });
+
+        tvSeeVoiceCommands.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.commitFragment(FragmentVoiceCommands.newInstance(),"FragmentVoiceCommands",true);
             }
         });
     }

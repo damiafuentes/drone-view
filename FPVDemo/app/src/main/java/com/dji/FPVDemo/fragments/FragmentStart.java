@@ -1,4 +1,4 @@
-package com.dji.FPVDemo;
+package com.dji.FPVDemo.fragments;
 
 
 import android.os.Bundle;
@@ -10,12 +10,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dji.FPVDemo.R;
+import com.dji.FPVDemo.StartActivity;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentStart#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class FragmentStart extends Fragment {
 
     public TextView tvStart;

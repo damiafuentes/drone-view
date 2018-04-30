@@ -1,4 +1,4 @@
-package com.dji.FPVDemo;
+package com.dji.FPVDemo.fragments;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -21,7 +21,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
+import com.dji.FPVDemo.FPVDemoApplication;
+import com.dji.FPVDemo.MainActivity;
+import com.dji.FPVDemo.R;
+import com.dji.FPVDemo.StartActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +38,7 @@ import dji.sdk.products.Aircraft;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 /**
- * Starting activity that is used to establish the connection with the drone wifi.
+ * Fragment that is used to establish the connection with the drone wifi.
  *
  * Created by Damià Fuentes and Eric Velazquez
  * April 6th 2018

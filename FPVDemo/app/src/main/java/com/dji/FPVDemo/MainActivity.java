@@ -684,7 +684,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     }
 
     private void startingSpeech(){
-        speech("Welcome to the drone view. Try saying the following commands: Take off. land. up. down. photo. start recording. stop recording . or. repeat commands. Hope you enjoy the flight! hahahaaa ");
+        speech("Welcome to the drone view. Hope you enjoy the flight! hahahaaa ");
     }
 
     private void uninitRecognition(){

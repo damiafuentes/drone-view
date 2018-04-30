@@ -5,14 +5,42 @@
     android:orientation="vertical"
     android:background="@color/white">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/HowDoesItWork"
-        android:textSize="32dp"
-        android:textStyle="bold"
-        android:layout_margin="16dp"
-        android:textColor="@color/colorPrimary"/>
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/HowDoesItWork"
+            android:textSize="32dp"
+            android:textStyle="bold"
+            android:layout_margin="16dp"
+            android:textColor="@color/colorPrimary"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/tvWatchVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="@string/SeeVideo"
+            android:background="@drawable/accent_button"
+            android:textColor="@color/white"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="16dp"/>
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -80,14 +108,14 @@
                 android:layout_centerVertical="true">
 
                 <TextView
-                    android:id="@+id/tvVideo"
+                    android:id="@+id/tvVoiceCommands"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingLeft="15dp"
                     android:paddingRight="15dp"
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
-                    android:text="@string/SeeVideo"
+                    android:text="@string/SeeVoiceCommands"
                     android:background="@drawable/accent_button"
                     android:textColor="@color/white"
                     android:textSize="16dp"

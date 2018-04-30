@@ -1,10 +1,11 @@
 package com.dji.FPVDemo;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+
+import com.dji.FPVDemo.fragments.FragmentStart;
 
 public class StartActivity extends FragmentActivity {
 
