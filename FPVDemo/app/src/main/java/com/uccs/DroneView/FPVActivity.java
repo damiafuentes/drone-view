@@ -521,7 +521,7 @@ public class FPVActivity extends Activity implements SensorEventListener, TextTo
         if(mOrientationAngles[0] != 0.0f && mFlightController != null) {
 
             // YAW
-            // Calculate the phone orientation increase and sum it to the drone orientation
+            // Calculate the phone orientation difference from last iteration and sum it to the yaw
             float mobileOrientation = mOrientationAngles[0];
             float droneOrientation = mFlightController.getCompass().getHeading();
 
@@ -529,7 +529,7 @@ public class FPVActivity extends Activity implements SensorEventListener, TextTo
                 // First iteration, set yaw as drone orientation
                 yaw = droneOrientation;
             } else{
-                // All other iterations, sum the phone orientation increase to the yaw
+                // All other iterations, sum the phone orientation difference to the yaw
                 yaw -= lastMobileOrientation - mobileOrientation;
             }
             // Save last phone orientation in order to calculate the increase in the next iteration
@@ -542,6 +542,7 @@ public class FPVActivity extends Activity implements SensorEventListener, TextTo
             // ROLL
             // Phone roll goes from 0 to -180. 0 maximum forward. -180 maximum backward.
             // For us, -45 and -135 would be the maximum degrees for maximum speed (forward and backward)
+            // Then, normalized values goes from -1 to 1 for max forward/backward
             float mobileRoll = mOrientationAngles[2];
             if (mobileRoll > -45){
                 mobileRoll = -45.0f;
@@ -554,11 +555,12 @@ public class FPVActivity extends Activity implements SensorEventListener, TextTo
                 normalizedRoll = 0;
             }
 
+            // Convert it to the maximum speed
             roll = (rollJoyControlMaxSpeed * normalizedRoll);
 
             // PITCH
-            // Phone roll goes from 90 to -90. 90 maximum left. -90 maximum rigth. We convert that
-            // so the values gos from -10 to 10. -10 maximum left and 10 maximum right
+            // Phone pitch goes from 90 to -90. 90 maximum left. -90 maximum right.
+            // Then, normalized values goes from -1 to 1 for max left/right
             float mobilePitch = mOrientationAngles[1];
             if (mobilePitch < -45){
                 mobilePitch = -45.0f;
@@ -571,6 +573,7 @@ public class FPVActivity extends Activity implements SensorEventListener, TextTo
                 normalizedPitch = 0;
             }
 
+            // Convert it to the maximum speed
             pitch = (pitchJoyControlMaxSpeed * normalizedPitch);
         }
 
