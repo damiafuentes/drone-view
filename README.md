@@ -6,6 +6,6 @@ FPV Drone is an VR app that controls a DJI drone using the gyroscope of the mobi
 
 ## Requirements
 
- - Android Studio 2.0+
+ - Android Studio 2.0++
  - Android System 4.1+
  - DJI Spark
